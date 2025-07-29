@@ -19,28 +19,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 const userCredential = await signInWithEmailAndPassword(auth, email, password);
                 const user = userCredential.user;
 
-                const userDocRef = doc(db, "users", user.uid);
-                const userDocSnap = await getDoc(userDocRef);
+                // *** تم إزالة التحقق من دور المستخدم وبياناته في Firestore تمامًا هنا ***
+                // سيتم توجيه المستخدم مباشرة بعد تسجيل الدخول بنجاح في Firebase Auth.
 
-                if (userDocSnap.exists()) {
-                    const userData = userDocSnap.data();
-                    const userRole = userData.role;
-                    localStorage.setItem('userRole', userRole);
-
-                    showNotification('تم تسجيل الدخول بنجاح!', 'success');
-
-                    if (userRole === 'doctor') {
-                        window.location.href = 'index.html'; // أو dashboard.html
-                    } else if (userRole === 'assistant') {
-                        window.location.href = 'pos.html';
-                    } else {
-                        errorMessage.textContent = 'دور المستخدم غير معرف.';
-                        await auth.signOut();
-                    }
-                } else {
-                    errorMessage.textContent = 'بيانات المستخدم غير موجودة في قاعدة البيانات.';
-                    await auth.signOut();
-                }
+                showNotification('تم تسجيل الدخول بنجاح!', 'success');
+                window.location.href = 'index.html'; // توجيه الجميع لصفحة البداية
 
             } catch (error) {
                 let message = 'حدث خطأ أثناء تسجيل الدخول. يرجى التحقق من البريد الإلكتروني وكلمة المرور.';
@@ -58,37 +41,24 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // *** تم إزالة جزء الحماية للصفحات الأخرى مؤقتًا لأغراض الاختبار ***
-    // onAuthStateChanged(auth, async (user) => {
-    //     if (window.location.pathname !== '/login.html') { // Only run if not on login page
-    //         if (!user) {
-    //             window.location.href = 'login.html';
-    //         } else {
-    //             const userDocRef = doc(db, "users", user.uid);
-    //             const userDocSnap = await getDoc(userDocRef);
-    //             if (userDocSnap.exists()) {
-    //                 const userData = userDocSnap.data();
-    //                 const userRole = userData.role;
-    //                 localStorage.setItem('userRole', userRole);
-
-    //                 const currentPage = window.location.pathname.split('/').pop();
-    //                 const doctorAllowedPages = ['index.html', 'dashboard.html', 'inventory.html', 'pos.html', 'debts.html', 'customers.html', 'suppliers.html', 'reports.html', 'settings.html'];
-    //                 const assistantAllowedPages = ['index.html', 'dashboard.html', 'pos.html', 'debts.html', 'customers.html'];
-
-    //                 if (userRole === 'doctor' && !doctorAllowedPages.includes(currentPage)) {
-    //                     alert('ليس لديك الصلاحية لدخول هذه الصفحة.');
-    //                     window.location.href = 'index.html';
-    //                 } else if (userRole === 'assistant' && !assistantAllowedPages.includes(currentPage)) {
-    //                     alert('ليس لديك الصلاحية لدخول هذه الصفحة.');
-    //                     window.location.href = 'pos.html';
-    //                 }
-    //             } else {
-    //                 await auth.signOut();
-    //                 window.location.href = 'login.html';
-    //             }
-    //         }
-    //     }
-    // });
+    // *** تم إزالة جميع التحققات من حالة المصادقة والدور للصفحات الأخرى هنا أيضًا ***
+    // هذا يعني أن أي صفحة يتم الوصول إليها (غير صفحة تسجيل الدخول)
+    // لن تقوم بالتحقق مما إذا كان المستخدم مسجل دخول أم لا.
+    // يجب أن تكون جميع الصفحات المحمية (index.html, pos.html, etc.) هي التي تستدعي هذا auth.js.
+    // لكن مع إزالة هذا الجزء، لن يكون هناك فحص على الإطلاق.
+    /*
+    if (window.location.pathname !== '/login.html') {
+        onAuthStateChanged(auth, async (user) => {
+            if (!user) {
+                // User is not logged in, redirect to login page
+                window.location.href = 'login.html';
+            } else {
+                // No role checking here
+                // User is logged in, allow access to the page
+            }
+        });
+    }
+    */
 });
 
 // Logout function
