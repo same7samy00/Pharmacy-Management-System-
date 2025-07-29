@@ -1,0 +1,1186 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>لوحة التحكم - نظام إدارة الصيدليات المتقدم</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        'arabic': ['Cairo', 'sans-serif']
+                    }
+                }
+            }
+        }
+    </script>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body class="bg-gradient-to-br from-blue-50 to-indigo-100 min-h-screen font-arabic" id="mainBody">
+    <header class="bg-white shadow-lg border-b-4 border-blue-500">
+        <div class="container mx-auto px-6 py-4">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center space-x-4 space-x-reverse">
+                    <div class="bg-blue-500 text-white p-3 rounded-full">
+                        <svg class="w-8 h-8" fill="currentColor" viewBox="0 0 20 20">
+                            <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                        </svg>
+                    </div>
+                    <div>
+                        <h1 class="text-2xl font-bold text-gray-800">نظام إدارة الصيدليات المتقدم</h1>
+                        <p class="text-gray-600">إدارة شاملة ومتكاملة مع جميع المميزات</p>
+                    </div>
+                </div>
+                <div class="flex items-center space-x-4 space-x-reverse">
+                    <button onclick="toggleDarkMode()" class="p-2 rounded-lg bg-gray-100 hover:bg-gray-200 transition-colors">
+                        <svg id="darkModeIcon" class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                            <path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z"/>
+                        </svg>
+                    </button>
+                    <div class="text-left">
+                        <p class="text-sm text-gray-600">مرحباً، <span id="userNameDisplay">المستخدم</span></p>
+                        <p class="text-xs text-gray-500" id="userRoleDisplay">صيدلي مسؤول</p>
+                    </div>
+                    <div class="w-10 h-10 bg-blue-500 rounded-full flex items-center justify-center text-white font-bold">
+                        <span id="userInitialDisplay">أ</span>
+                    </div>
+                    <button onclick="logout()" class="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded-lg text-sm font-semibold transition-colors">
+                        تسجيل الخروج
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <nav class="bg-white shadow-md">
+        <div class="container mx-auto px-6">
+            <div class="flex space-x-8 space-x-reverse overflow-x-auto">
+                <button onclick="showSection('dashboard', this)" class="nav-btn py-4 px-6 text-blue-600 border-b-2 border-blue-600 font-semibold whitespace-nowrap">
+                    لوحة التحكم
+                </button>
+                <button onclick="showSection('inventory', this)" class="nav-btn py-4 px-6 text-gray-600 hover:text-blue-600 font-semibold whitespace-nowrap">
+                    إدارة المخزون
+                </button>
+                <button onclick="showSection('pos', this)" class="nav-btn py-4 px-6 text-gray-600 hover:text-blue-600 font-semibold whitespace-nowrap">
+                    نقطة البيع
+                </button>
+                <button onclick="showSection('debts', this)" class="nav-btn py-4 px-6 text-gray-600 hover:text-blue-600 font-semibold whitespace-nowrap">
+                    إدارة الديون
+                </button>
+                <button onclick="showSection('customers', this)" class="nav-btn py-4 px-6 text-gray-600 hover:text-blue-600 font-semibold whitespace-nowrap">
+                    العملاء
+                </button>
+                <button onclick="showSection('suppliers', this)" class="nav-btn py-4 px-6 text-gray-600 hover:text-blue-600 font-semibold whitespace-nowrap">
+                    الموردين
+                </button>
+                <button onclick="showSection('reports', this)" class="nav-btn py-4 px-6 text-gray-600 hover:text-blue-600 font-semibold whitespace-nowrap">
+                    التقارير
+                </button>
+                <button onclick="showSection('settings', this)" class="nav-btn py-4 px-6 text-gray-600 hover:text-blue-600 font-semibold whitespace-nowrap">
+                    الإعدادات
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <div id="notifications" class="notification"></div>
+
+    <main class="container mx-auto px-6 py-8">
+        <div id="dashboard" class="section fade-in">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                <div class="bg-white rounded-xl shadow-lg p-6 border-r-4 border-green-500 hover:shadow-xl transition-shadow">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-gray-600 text-sm">إجمالي المبيعات اليوم</p>
+                            <p class="text-2xl font-bold text-green-600">15,750 ريال</p>
+                            <p class="text-xs text-green-500">↗ +12% من أمس</p>
+                        </div>
+                        <div class="bg-green-100 p-3 rounded-full">
+                            <svg class="w-6 h-6 text-green-600" fill="currentColor" viewBox="0 0 20 20">
+                                <path d="M4 4a2 2 0 00-2 2v4a2 2 0 002 2V6h10a2 2 0 00-2-2H4zm2 6a2 2 0 012-2h8a2 2 0 012 2v4a2 2 0 01-2 2H8a2 2 0 01-2-2v-4zm6 4a2 2 0 100-4 2 2 0 000 4z"/>
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-xl shadow-lg p-6 border-r-4 border-blue-500 hover:shadow-xl transition-shadow">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-gray-600 text-sm">عدد الأدوية في المخزون</p>
+                            <p class="text-2xl font-bold text-blue-600">1,247</p>
+                            <p class="text-xs text-blue-500">قيمة: 456,890 ريال</p>
+                        </div>
+                        <div class="bg-blue-100 p-3 rounded-full">
+                            <svg class="w-6 h-6 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
+                                <path d="M5 3a2 2 0 00-2 2v2a2 2 0 002 2h2a2 2 0 002-2V5a2 2 0 00-2-2H5zM5 11a2 2 0 00-2 2v2a2 2 0 002 2h2a2 2 0 002-2v-2a2 2 0 00-2-2H5zM11 5a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V5zM11 13a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"/>
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-xl shadow-lg p-6 border-r-4 border-red-500 hover:shadow-xl transition-shadow">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-gray-600 text-sm">إجمالي الديون</p>
+                            <p class="text-2xl font-bold text-red-600">23,450 ريال</p>
+                            <p class="text-xs text-red-500">45 عميل</p>
+                        </div>
+                        <div class="bg-red-100 p-3 rounded-full">
+                            <svg class="w-6 h-6 text-red-600" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M4 4a2 2 0 00-2 2v4a2 2 0 002 2V6h10a2 2 0 00-2-2H4zm2 6a2 2 0 012-2h8a2 2 0 012 2v4a2 2 0 01-2 2H8a2 2 0 01-2-2v-4zm6 4a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd"/>
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-xl shadow-lg p-6 border-r-4 border-yellow-500 hover:shadow-xl transition-shadow">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-gray-600 text-sm">تنبيهات مهمة</p>
+                            <p class="text-2xl font-bold text-yellow-600">23</p>
+                            <p class="text-xs text-yellow-500">تحتاج متابعة</p>
+                        </div>
+                        <div class="bg-yellow-100 p-3 rounded-full">
+                            <svg class="w-6 h-6 text-yellow-600" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                <div class="bg-white rounded-xl shadow-lg p-6">
+                    <h3 class="text-xl font-bold text-gray-800 mb-4">الإجراءات السريعة</h3>
+                    <div class="grid grid-cols-2 gap-4">
+                        <button onclick="showSection('pos')" class="bg-blue-500 hover:bg-blue-600 text-white p-4 rounded-lg text-center transition-all hover:scale-105">
+                            <svg class="w-8 h-8 mx-auto mb-2" fill="currentColor" viewBox="0 0 20 20">
+                                <path d="M3 4a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1V4zM3 10a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H4a1 1 0 01-1-1v-6zM14 9a1 1 0 00-1 1v6a1 1 0 001 1h2a1 1 0 001-1v-6a1 1 0 00-1-1h-2z"/>
+                            </svg>
+                            <p class="font-semibold">بيع جديد</p>
+                        </button>
+                        <button onclick="openBarcodeScanner()" class="bg-green-500 hover:bg-green-600 text-white p-4 rounded-lg text-center transition-all hover:scale-105">
+                            <svg class="w-8 h-8 mx-auto mb-2" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M3 4a1 1 0 011-1h3a1 1 0 000 2H5.414l1.293 1.293a1 1 0 01-1.414 1.414L4 6.414V9a1 1 0 01-2 0V4zm9 1a1 1 0 010-2h3a1 1 0 011 1v5a1 1 0 01-2 0V5.414l-1.293 1.293a1 1 0 11-1.414-1.414L12.586 4H12zm-9 7a1 1 0 012 0v2.586l1.293-1.293a1 1 0 111.414 1.414L6.414 16H9a1 1 0 110 2H4a1 1 0 01-1-1v-5zm13 0a1 1 0 01-2 0v2.586l-1.293-1.293a1 1 0 00-1.414 1.414L13.586 16H11a1 1 0 100 2h5a1 1 0 001-1v-5z" clip-rule="evenodd"/>
+                            </svg>
+                            <p class="font-semibold">مسح باركود</p>
+                        </button>
+                        <button onclick="showSection('inventory')" class="bg-purple-500 hover:bg-purple-600 text-white p-4 rounded-lg text-center transition-all hover:scale-105">
+                            <svg class="w-8 h-8 mx-auto mb-2" fill="currentColor" viewBox="0 0 20 20">
+                                <path d="M10 2L3 7v11a1 1 0 001 1h12a1 1 0 001-1V7l-7-5z"/>
+                            </svg>
+                            <p class="font-semibold">إضافة منتج</p>
+                        </button>
+                        <button onclick="showSection('reports')" class="bg-orange-500 hover:bg-orange-600 text-white p-4 rounded-lg text-center transition-all hover:scale-105">
+                            <svg class="w-8 h-8 mx-auto mb-2" fill="currentColor" viewBox="0 0 20 20">
+                                <path d="M2 11a1 1 0 011-1h2a1 1 0 011 1v5a1 1 0 01-1 1H3a1 1 0 01-1-1v-5zM8 7a1 1 0 011-1h2a1 1 0 011 1v9a1 1 0 01-1 1H9a1 1 0 01-1-1V7zM14 4a1 1 0 011-1h2a1 1 0 011 1v12a1 1 0 01-1 1h-2a1 1 0 01-1-1V4z"/>
+                            </svg>
+                            <p class="font-semibold">التقارير</p>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-xl shadow-lg p-6">
+                    <h3 class="text-xl font-bold text-gray-800 mb-4">التنبيهات المهمة</h3>
+                    <div class="space-y-3 max-h-64 overflow-y-auto">
+                        <div class="flex items-center p-3 bg-red-50 border-r-4 border-red-500 rounded hover:bg-red-100 transition-colors cursor-pointer">
+                            <svg class="w-5 h-5 text-red-500 ml-3" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92z" clip-rule="evenodd"/>
+                            </svg>
+                            <div class="flex-1">
+                                <p class="font-semibold text-red-800">أدوية منتهية الصلاحية</p>
+                                <p class="text-sm text-red-600">5 أدوية تحتاج إزالة فورية</p>
+                            </div>
+                            <span class="text-xs text-red-500">عاجل</span>
+                        </div>
+                        <div class="flex items-center p-3 bg-yellow-50 border-r-4 border-yellow-500 rounded hover:bg-yellow-100 transition-colors cursor-pointer">
+                            <svg class="w-5 h-5 text-yellow-500 ml-3" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92z" clip-rule="evenodd"/>
+                            </svg>
+                            <div class="flex-1">
+                                <p class="font-semibold text-yellow-800">مخزون منخفض</p>
+                                <p class="text-sm text-yellow-600">18 دواء يحتاج إعادة طلب</p>
+                            </div>
+                            <span class="text-xs text-yellow-500">مهم</span>
+                        </div>
+                        <div class="flex items-center p-3 bg-blue-50 border-r-4 border-blue-500 rounded hover:bg-blue-100 transition-colors cursor-pointer">
+                            <svg class="w-5 h-5 text-blue-500 ml-3" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/>
+                            </svg>
+                            <div class="flex-1">
+                                <p class="font-semibold text-blue-800">ديون مستحقة</p>
+                                <p class="text-sm text-blue-600">12 عميل لديهم ديون مستحقة</p>
+                            </div>
+                            <span class="text-xs text-blue-500">متابعة</span>
+                        </div>
+                        <div class="flex items-center p-3 bg-green-50 border-r-4 border-green-500 rounded hover:bg-green-100 transition-colors cursor-pointer">
+                            <svg class="w-5 h-5 text-green-500 ml-3" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                            </svg>
+                            <div class="flex-1">
+                                <p class="font-semibold text-green-800">طلبات جديدة</p>
+                                <p class="text-sm text-green-600">8 طلبات شراء تم استلامها</p>
+                            </div>
+                            <span class="text-xs text-green-500">جديد</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="inventory" class="section hidden">
+            <div class="bg-white rounded-xl shadow-lg p-6 mb-6">
+                <div class="flex flex-col md:flex-row md:items-center md:justify-between mb-6">
+                    <h2 class="text-2xl font-bold text-gray-800 mb-4 md:mb-0">إدارة المخزون المتقدمة</h2>
+                    <div class="flex flex-col sm:flex-row gap-3">
+                        <button onclick="openAddProductModal()" class="bg-blue-500 hover:bg-blue-600 text-white px-6 py-2 rounded-lg font-semibold transition-colors">
+                            إضافة منتج جديد
+                        </button>
+                        <button onclick="importProducts()" class="bg-green-500 hover:bg-green-600 text-white px-6 py-2 rounded-lg font-semibold transition-colors">
+                            استيراد Excel/CSV
+                        </button>
+                        <button onclick="printBarcodes()" class="bg-purple-500 hover:bg-purple-600 text-white px-6 py-2 rounded-lg font-semibold transition-colors">
+                            طباعة باركود
+                        </button>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+                    <div class="relative">
+                        <input type="text" id="productSearch" placeholder="البحث بالاسم، الكود، أو الباركود..." 
+                               class="w-full border border-gray-300 rounded-lg px-4 py-2 pr-10 focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                        <svg class="absolute left-3 top-2.5 w-5 h-5 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clip-rule="evenodd"/>
+                        </svg>
+                    </div>
+                    <select id="categoryFilter" class="border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                        <option value="">جميع الفئات</option>
+                        <option value="painkillers">مسكنات</option>
+                        <option value="antibiotics">مضادات حيوية</option>
+                        <option value="vitamins">فيتامينات</option>
+                        <option value="heart">أدوية القلب</option>
+                        <option value="diabetes">أدوية السكري</option>
+                    </select>
+                    <select id="statusFilter" class="border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                        <option value="">جميع الحالات</option>
+                        <option value="available">متوفر</option>
+                        <option value="low">مخزون منخفض</option>
+                        <option value="expired">منتهي الصلاحية</option>
+                        <option value="near_expiry">قريب الانتهاء</option>
+                    </select>
+                    <select id="supplierFilter" class="border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                        <option value="">جميع الموردين</option>
+                        <option value="supplier1">شركة الدواء الأولى</option>
+                        <option value="supplier2">مؤسسة الصحة</option>
+                        <option value="supplier3">شركة الشفاء</option>
+                    </select>
+                </div>
+
+                <div class="overflow-x-auto">
+                    <table class="w-full table-auto">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th class="px-4 py-3 text-right text-sm font-semibold text-gray-700">
+                                    <input type="checkbox" class="rounded">
+                                </th>
+                                <th class="px-4 py-3 text-right text-sm font-semibold text-gray-700">صورة</th>
+                                <th class="px-4 py-3 text-right text-sm font-semibold text-gray-700">اسم الدواء</th>
+                                <th class="px-4 py-3 text-right text-sm font-semibold text-gray-700">الكود/الباركود</th>
+                                <th class="px-4 py-3 text-right text-sm font-semibold text-gray-700">الكمية</th>
+                                <th class="px-4 py-3 text-right text-sm font-semibold text-gray-700">وحدة البيع</th>
+                                <th class="px-4 py-3 text-right text-sm font-semibold text-gray-700">السعر</th>
+                                <th class="px-4 py-3 text-right text-sm font-semibold text-gray-700">تاريخ الانتهاء</th>
+                                <th class="px-4 py-3 text-right text-sm font-semibold text-gray-700">المورد</th>
+                                <th class="px-4 py-3 text-right text-sm font-semibold text-gray-700">الحالة</th>
+                                <th class="px-4 py-3 text-right text-sm font-semibold text-gray-700">الإجراءات</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-gray-200">
+                            <tr class="hover:bg-gray-50">
+                                <td class="px-4 py-3"><input type="checkbox" class="rounded"></td>
+                                <td class="px-4 py-3">
+                                    <div class="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
+                                        <svg class="w-6 h-6 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
+                                            <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                        </svg>
+                                    </div>
+                                </td>
+                                <td class="px-4 py-3">
+                                    <div>
+                                        <p class="text-sm font-semibold text-gray-900">باراسيتامول 500 مجم</p>
+                                        <p class="text-xs text-gray-500">أقراص مسكنة للألم</p>
+                                    </div>
+                                </td>
+                                <td class="px-4 py-3 text-sm text-gray-900">PAR500-001</td>
+                                <td class="px-4 py-3">
+                                    <div class="text-sm">
+                                        <p class="font-semibold">150 علبة</p>
+                                        <p class="text-xs text-gray-500">1500 شريط</p>
+                                    </div>
+                                </td>
+                                <td class="px-4 py-3 text-sm text-gray-900">علبة/شريط/حبة</td>
+                                <td class="px-4 py-3 text-sm text-gray-900">12.50 ريال</td>
+                                <td class="px-4 py-3 text-sm text-gray-900">2025/08/15</td>
+                                <td class="px-4 py-3 text-sm text-gray-900">شركة الدواء الأولى</td>
+                                <td class="px-4 py-3">
+                                    <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">متوفر</span>
+                                </td>
+                                <td class="px-4 py-3">
+                                    <div class="flex space-x-2 space-x-reverse">
+                                        <button onclick="editProduct(1)" class="text-blue-600 hover:text-blue-800 text-sm">تعديل</button>
+                                        <button onclick="viewProduct(1)" class="text-green-600 hover:text-green-800 text-sm">عرض</button>
+                                        <button onclick="deleteProduct(1)" class="text-red-600 hover:text-red-800 text-sm">حذف</button>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr class="hover:bg-gray-50">
+                                <td class="px-4 py-3"><input type="checkbox" class="rounded"></td>
+                                <td class="px-4 py-3">
+                                    <div class="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center">
+                                        <svg class="w-6 h-6 text-green-600" fill="currentColor" viewBox="0 0 20 20">
+                                            <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                        </svg>
+                                    </div>
+                                </td>
+                                <td class="px-4 py-3">
+                                    <div>
+                                        <p class="text-sm font-semibold text-gray-900">أموكسيسيلين 250 مجم</p>
+                                        <p class="text-xs text-gray-500">مضاد حيوي واسع المجال</p>
+                                    </div>
+                                </td>
+                                <td class="px-4 py-3 text-sm text-gray-900">AMX250-002</td>
+                                <td class="px-4 py-3">
+                                    <div class="text-sm">
+                                        <p class="font-semibold text-yellow-600">25 علبة</p>
+                                        <p class="text-xs text-gray-500">250 شريط</p>
+                                    </div>
+                                </td>
+                                <td class="px-4 py-3 text-sm text-gray-900">علبة/شريط/حبة</td>
+                                <td class="px-4 py-3 text-sm text-gray-900">28.00 ريال</td>
+                                <td class="px-4 py-3 text-sm text-gray-900">2024/12/30</td>
+                                <td class="px-4 py-3 text-sm text-gray-900">مؤسسة الصحة</td>
+                                <td class="px-4 py-3">
+                                    <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-yellow-100 text-yellow-800">مخزون منخفض</span>
+                                </td>
+                                <td class="px-4 py-3">
+                                    <div class="flex space-x-2 space-x-reverse">
+                                        <button onclick="editProduct(2)" class="text-blue-600 hover:text-blue-800 text-sm">تعديل</button>
+                                        <button onclick="viewProduct(2)" class="text-green-600 hover:text-green-800 text-sm">عرض</button>
+                                        <button onclick="deleteProduct(2)" class="text-red-600 hover:text-red-800 text-sm">حذف</button>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="flex items-center justify-between mt-6">
+                    <div class="text-sm text-gray-700">
+                        عرض 1-10 من 247 منتج
+                    </div>
+                    <div class="flex space-x-2 space-x-reverse">
+                        <button class="px-3 py-1 border border-gray-300 rounded-lg hover:bg-gray-50">السابق</button>
+                        <button class="px-3 py-1 bg-blue-500 text-white rounded-lg">1</button>
+                        <button class="px-3 py-1 border border-gray-300 rounded-lg hover:bg-gray-50">2</button>
+                        <button class="px-3 py-1 border border-gray-300 rounded-lg hover:bg-gray-50">3</button>
+                        <button class="px-3 py-1 border border-gray-300 rounded-lg hover:bg-gray-50">التالي</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="pos" class="section hidden">
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <div class="lg:col-span-2 bg-white rounded-xl shadow-lg p-6">
+                    <div class="flex items-center justify-between mb-6">
+                        <h2 class="text-2xl font-bold text-gray-800">نقطة البيع المتقدمة</h2>
+                        <div class="flex space-x-2 space-x-reverse">
+                            <button onclick="openBarcodeScanner()" class="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg font-semibold transition-colors">
+                                مسح باركود
+                            </button>
+                            <button onclick="loadSavedInvoice()" class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg font-semibold transition-colors">
+                                استكمال فاتورة
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-6">
+                        <div class="relative">
+                            <input type="text" id="posProductSearch" placeholder="البحث عن منتج، مسح الباركود، أو كتابة الكود..." 
+                                   class="w-full border border-gray-300 rounded-lg px-4 py-3 pr-12 focus:ring-2 focus:ring-blue-500 focus:border-transparent text-lg"
+                                   onkeypress="handleProductSearch(event)">
+                            <div class="absolute left-3 top-3 flex space-x-2 space-x-reverse">
+                                <svg class="w-6 h-6 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clip-rule="evenodd"/>
+                                </svg>
+                            </div>
+                        </div>
+                        <div id="searchSuggestions" class="hidden absolute z-10 w-full bg-white border border-gray-300 rounded-lg mt-1 shadow-lg max-h-60 overflow-y-auto"></div>
+                    </div>
+
+                    <div class="mb-6">
+                        <div class="flex items-center justify-between mb-4">
+                            <h3 class="text-lg font-semibold text-gray-800">عناصر الفاتورة</h3>
+                            <div class="text-sm text-gray-600">
+                                <span id="cartItemCount">0</span> منتج
+                            </div>
+                        </div>
+                        <div id="cartItems" class="space-y-3 max-h-80 overflow-y-auto border rounded-lg p-4 bg-gray-50">
+                            <p class="text-gray-500 text-center py-8">لا توجد منتجات في الفاتورة</p>
+                        </div>
+                    </div>
+
+                    <div class="mb-6">
+                        <h4 class="text-md font-semibold text-gray-800 mb-3">منتجات سريعة</h4>
+                        <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+                            <button onclick="addToCart('باراسيتامول 500 مجم', 12.50, 'PAR500-001')" class="bg-gray-100 hover:bg-gray-200 p-3 rounded-lg text-center transition-colors">
+                                <p class="font-semibold text-sm">باراسيتامول</p>
+                                <p class="text-xs text-gray-600">12.50 ريال</p>
+                            </button>
+                            <button onclick="addToCart('أموكسيسيلين 250 مجم', 28.00, 'AMX250-002')" class="bg-gray-100 hover:bg-gray-200 p-3 rounded-lg text-center transition-colors">
+                                <p class="font-semibold text-sm">أموكسيسيلين</p>
+                                <p class="text-xs text-gray-600">28.00 ريال</p>
+                            </button>
+                            <button onclick="addToCart('فيتامين سي 1000 مجم', 35.00, 'VTC1000-003')" class="bg-gray-100 hover:bg-gray-200 p-3 rounded-lg text-center transition-colors">
+                                <p class="font-semibold text-sm">فيتامين سي</p>
+                                <p class="text-xs text-gray-600">35.00 ريال</p>
+                            </button>
+                            <button onclick="addToCart('أسبرين 100 مجم', 8.75, 'ASP100-004')" class="bg-gray-100 hover:bg-gray-200 p-3 rounded-lg text-center transition-colors">
+                                <p class="font-semibold text-sm">أسبرين</p>
+                                <p class="text-xs text-gray-600">8.75 ريال</p>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-xl shadow-lg p-6">
+                    <h3 class="text-lg font-semibold text-gray-800 mb-4">تفاصيل الفاتورة</h3>
+                    
+                    <div class="mb-4">
+                        <label class="block text-sm font-semibold text-gray-700 mb-2">العميل</label>
+                        <div class="flex space-x-2 space-x-reverse">
+                            <select id="customerSelect" class="flex-1 border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                                <option value="">عميل عادي</option>
+                                <option value="1">محمد أحمد السعيد</option>
+                                <option value="2">فاطمة علي المحمد</option>
+                                <option value="3">عبدالله محمد الأحمد</option>
+                            </select>
+                            <button onclick="openAddCustomerModal()" class="bg-green-500 hover:bg-green-600 text-white px-3 py-2 rounded-lg">+</button>
+                        </div>
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="block text-sm font-semibold text-gray-700 mb-2">الخصم</label>
+                        <div class="flex space-x-2 space-x-reverse">
+                            <input type="number" id="discountAmount" placeholder="0" min="0" 
+                                   class="flex-1 border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                   onchange="updateTotals()">
+                            <select id="discountType" class="border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent" onchange="updateTotals()">
+                                <option value="amount">ريال</option>
+                                <option value="percent">%</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="space-y-2 mb-6 bg-gray-50 p-4 rounded-lg">
+                        <div class="flex justify-between text-sm">
+                            <span class="text-gray-600">المجموع الفرعي:</span>
+                            <span id="subtotal" class="font-semibold">0.00 ريال</span>
+                        </div>
+                        <div class="flex justify-between text-sm">
+                            <span class="text-gray-600">الخصم:</span>
+                            <span id="discountDisplay" class="font-semibold text-green-600">0.00 ريال</span>
+                        </div>
+                        <div class="flex justify-between text-sm">
+                            <span class="text-gray-600">الضريبة (15%):</span>
+                            <span id="tax" class="font-semibold">0.00 ريال</span>
+                        </div>
+                        <div class="border-t pt-2">
+                            <div class="flex justify-between text-lg font-bold">
+                                <span>الإجمالي:</span>
+                                <span id="total" class="text-blue-600">0.00 ريال</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mb-6">
+                        <label class="block text-sm font-semibold text-gray-700 mb-2">طريقة الدفع</label>
+                        <select id="paymentMethod" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                            <option value="cash">نقداً</option>
+                            <option value="credit">بطاقة ائتمان</option>
+                            <option value="debit">بطاقة مدى</option>
+                            <option value="wallet">محفظة رقمية</option>
+                            <option value="credit_sale">بيع آجل</option>
+                            <option value="mixed">دفع مختلط</option>
+                        </select>
+                    </div>
+
+                    <div class="space-y-3">
+                        <button onclick="processSale()" class="w-full bg-green-500 hover:bg-green-600 text-white py-3 rounded-lg font-semibold transition-colors">
+                            إتمام البيع
+                        </button>
+                        <div class="grid grid-cols-2 gap-2">
+                            <button onclick="saveInvoiceTemporary()" class="bg-yellow-500 hover:bg-yellow-600 text-white py-2 rounded-lg font-semibold transition-colors">
+                                حفظ مؤقت
+                            </button>
+                            <button onclick="clearCart()" class="bg-gray-500 hover:bg-gray-600 text-white py-2 rounded-lg font-semibold transition-colors">
+                                مسح الفاتورة
+                            </button>
+                        </div>
+                        <button onclick="printLastInvoice()" class="w-full bg-blue-500 hover:bg-blue-600 text-white py-2 rounded-lg font-semibold transition-colors">
+                            طباعة آخر فاتورة
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="debts" class="section hidden">
+            <div class="bg-white rounded-xl shadow-lg p-6">
+                <div class="flex flex-col md:flex-row md:items-center md:justify-between mb-6">
+                    <h2 class="text-2xl font-bold text-gray-800 mb-4 md:mb-0">إدارة الديون والبيع الآجل</h2>
+                    <div class="flex flex-col sm:flex-row gap-3">
+                        <button onclick="addNewDebt()" class="bg-blue-500 hover:bg-blue-600 text-white px-6 py-2 rounded-lg font-semibold transition-colors">
+                            إضافة دين جديد
+                        </button>
+                        <button onclick="sendDebtReminders()" class="bg-orange-500 hover:bg-orange-600 text-white px-6 py-2 rounded-lg font-semibold transition-colors">
+                            إرسال تذكيرات
+                        </button>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+                    <div class="bg-red-50 border border-red-200 rounded-xl p-6">
+                        <div class="flex items-center">
+                            <div class="bg-red-500 p-3 rounded-full">
+                                <svg class="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 20 20">
+                                    <path d="M4 4a2 2 0 00-2 2v4a2 2 0 002 2V6h10a2 2 0 00-2-2H4zm2 6a2 2 0 012-2h8a2 2 0 012 2v4a2 2 0 01-2 2H8a2 2 0 01-2-2v-4zm6 4a2 2 0 100-4 2 2 0 000 4z"/>
+                                </svg>
+                            </div>
+                            <div class="mr-4">
+                                <p class="text-sm text-red-600">إجمالي الديون</p>
+                                <p class="text-2xl font-bold text-red-700">23,450 ريال</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-yellow-50 border border-yellow-200 rounded-xl p-6">
+                        <div class="flex items-center">
+                            <div class="bg-yellow-500 p-3 rounded-full">
+                                <svg class="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clip-rule="evenodd"/>
+                                </svg>
+                            </div>
+                            <div class="mr-4">
+                                <p class="text-sm text-yellow-600">ديون مستحقة</p>
+                                <p class="text-2xl font-bold text-yellow-700">8,750 ريال</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-blue-50 border border-blue-200 rounded-xl p-6">
+                        <div class="flex items-center">
+                            <div class="bg-blue-500 p-3 rounded-full">
+                                <svg class="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 20 20">
+                                    <path d="M9 6a3 3 0 11-6 0 3 3 0 016 0zM17 6a3 3 0 11-6 0 3 3 0 016 0zM12.93 17c.046-.327.07-.66.07-1a6.97 6.97 0 00-1.5-4.33A5 5 0 0119 16v1h-6.07zM6 11a5 5 0 015 5v1H1v-1a5 5 0 015-5z"/>
+                                </svg>
+                            </div>
+                            <div class="mr-4">
+                                <p class="text-sm text-blue-600">عدد العملاء</p>
+                                <p class="text-2xl font-bold text-blue-700">45</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-green-50 border border-green-200 rounded-xl p-6">
+                        <div class="flex items-center">
+                            <div class="bg-green-500 p-3 rounded-full">
+                                <svg class="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M4 2a1 1 0 011 1v2.101a7.002 7.002 0 0111.601 2.566 1 1 0 11-1.885.666A5.002 5.002 0 005.999 7H9a1 1 0 010 2H4a1 1 0 01-1-1V3a1 1 0 011-1zm.008 9.057a1 1 0 011.276.61A5.002 5.002 0 0014.001 13H11a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0v-2.101a7.002 7.002 0 01-11.601-2.566 1 1 0 01.61-1.276z" clip-rule="evenodd"/>
+                                </svg>
+                            </div>
+                            <div class="mr-4">
+                                <p class="text-sm text-green-600">تم السداد هذا الشهر</p>
+                                <p class="text-2xl font-bold text-green-700">12,300 ريال</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="overflow-x-auto">
+                    <table class="w-full table-auto">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th class="px-4 py-3 text-right text-sm font-semibold text-gray-700">العميل</th>
+                                <th class="px-4 py-3 text-right text-sm font-semibold text-gray-700">رقم الفاتورة</th>
+                                <th class="px-4 py-3 text-right text-sm font-semibold text-gray-700">المبلغ الأصلي</th>
+                                <th class="px-4 py-3 text-right text-sm font-semibold text-gray-700">المبلغ المدفوع</th>
+                                <th class="px-4 py-3 text-right text-sm font-semibold text-gray-700">المتبقي</th>
+                                <th class="px-4 py-3 text-right text-sm font-semibold text-gray-700">تاريخ الاستحقاق</th>
+                                <th class="px-4 py-3 text-right text-sm font-semibold text-gray-700">الحالة</th>
+                                <th class="px-4 py-3 text-right text-sm font-semibold text-gray-700">الإجراءات</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-gray-200">
+                            <tr class="hover:bg-gray-50">
+                                <td class="px-4 py-3 text-sm text-gray-900">محمد أحمد السعيد</td>
+                                <td class="px-4 py-3 text-sm text-gray-900">#INV-2024-001</td>
+                                <td class="px-4 py-3 text-sm text-gray-900">1,250 ريال</td>
+                                <td class="px-4 py-3 text-sm text-gray-900">500 ريال</td>
+                                <td class="px-4 py-3 text-sm font-semibold text-red-600">750 ريال</td>
+                                <td class="px-4 py-3 text-sm text-gray-900">2024/12/01</td>
+                                <td class="px-4 py-3">
+                                    <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-red-100 text-red-800">مستحق</span>
+                                </td>
+                                <td class="px-4 py-3">
+                                    <div class="flex space-x-2 space-x-reverse">
+                                        <button onclick="payDebt(1)" class="text-green-600 hover:text-green-800 text-sm">سداد</button>
+                                        <button onclick="viewDebtDetails(1)" class="text-blue-600 hover:text-blue-800 text-sm">تفاصيل</button>
+                                        <button onclick="sendReminder(1)" class="text-orange-600 hover:text-orange-800 text-sm">تذكير</button>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr class="hover:bg-gray-50">
+                                <td class="px-4 py-3 text-sm text-gray-900">فاطمة علي المحمد</td>
+                                <td class="px-4 py-3 text-sm text-gray-900">#INV-2024-002</td>
+                                <td class="px-4 py-3 text-sm text-gray-900">890 ريال</td>
+                                <td class="px-4 py-3 text-sm text-gray-900">0 ريال</td>
+                                <td class="px-4 py-3 text-sm font-semibold text-red-600">890 ريال</td>
+                                <td class="px-4 py-3 text-sm text-gray-900">2024/12/15</td>
+                                <td class="px-4 py-3">
+                                    <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-yellow-100 text-yellow-800">قريب الاستحقاق</span>
+                                </td>
+                                <td class="px-4 py-3">
+                                    <div class="flex space-x-2 space-x-reverse">
+                                        <button onclick="payDebt(2)" class="text-green-600 hover:text-green-800 text-sm">سداد</button>
+                                        <button onclick="viewDebtDetails(2)" class="text-blue-600 hover:text-blue-800 text-sm">تفاصيل</button>
+                                        <button onclick="sendReminder(2)" class="text-orange-600 hover:text-orange-800 text-sm">تذكير</button>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <div id="customers" class="section hidden">
+            <div class="bg-white rounded-xl shadow-lg p-6">
+                <div class="flex flex-col md:flex-row md:items-center md:justify-between mb-6">
+                    <h2 class="text-2xl font-bold text-gray-800 mb-4 md:mb-0">إدارة العملاء</h2>
+                    <div class="flex flex-col sm:flex-row gap-3">
+                        <button onclick="openAddCustomerModal()" class="bg-blue-500 hover:bg-blue-600 text-white px-6 py-2 rounded-lg font-semibold transition-colors">
+                            إضافة عميل جديد
+                        </button>
+                        <button onclick="exportCustomers()" class="bg-green-500 hover:bg-green-600 text-white px-6 py-2 rounded-lg font-semibold transition-colors">
+                            تصدير البيانات
+                        </button>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+                    <div class="bg-blue-50 border border-blue-200 rounded-xl p-6">
+                        <div class="text-center">
+                            <p class="text-3xl font-bold text-blue-600">1,456</p>
+                            <p class="text-sm text-blue-600">إجمالي العملاء</p>
+                        </div>
+                    </div>
+                    <div class="bg-green-50 border border-green-200 rounded-xl p-6">
+                        <div class="text-center">
+                            <p class="text-3xl font-bold text-green-600">89</p>
+                            <p class="text-sm text-green-600">عملاء جدد هذا الشهر</p>
+                        </div>
+                    </div>
+                    <div class="bg-purple-50 border border-purple-200 rounded-xl p-6">
+                        <div class="text-center">
+                            <p class="text-3xl font-bold text-purple-600">235</p>
+                            <p class="text-sm text-purple-600">متوسط الشراء (ريال)</p>
+                        </div>
+                    </div>
+                    <div class="bg-orange-50 border border-orange-200 rounded-xl p-6">
+                        <div class="text-center">
+                            <p class="text-3xl font-bold text-orange-600">45</p>
+                            <p class="text-sm text-orange-600">عملاء لديهم ديون</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                    <input type="text" placeholder="البحث عن عميل..." class="border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                    <select class="border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                        <option>جميع العملاء</option>
+                        <option>عملاء نشطون</option>
+                        <option>عملاء لديهم ديون</option>
+                        <option>عملاء جدد</option>
+                    </select>
+                    <select class="border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                        <option>ترتيب حسب الاسم</option>
+                        <option>ترتيب حسب آخر زيارة</option>
+                        <option>ترتيب حسب إجمالي المشتريات</option>
+                    </select>
+                </div>
+
+                <div class="overflow-x-auto">
+                    <table class="w-full table-auto">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th class="px-4 py-3 text-right text-sm font-semibold text-gray-700">اسم العميل</th>
+                                <th class="px-4 py-3 text-right text-sm font-semibold text-gray-700">رقم الهاتف</th>
+                                <th class="px-4 py-3 text-right text-sm font-semibold text-gray-700">البريد الإلكتروني</th>
+                                <th class="px-4 py-3 text-right text-sm font-semibold text-gray-700">آخر زيارة</th>
+                                <th class="px-4 py-3 text-right text-sm font-semibold text-gray-700">إجمالي المشتريات</th>
+                                <th class="px-4 py-3 text-right text-sm font-semibold text-gray-700">الديون</th>
+                                <th class="px-4 py-3 text-right text-sm font-semibold text-gray-700">نقاط الولاء</th>
+                                <th class="px-4 py-3 text-right text-sm font-semibold text-gray-700">الإجراءات</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-gray-200">
+                            <tr class="hover:bg-gray-50">
+                                <td class="px-4 py-3">
+                                    <div class="flex items-center">
+                                        <div class="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center text-white text-sm font-bold ml-3">
+                                            م
+                                        </div>
+                                        <div>
+                                            <p class="text-sm font-semibold text-gray-900">محمد أحمد السعيد</p>
+                                            <p class="text-xs text-gray-500">عميل مميز</p>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="px-4 py-3 text-sm text-gray-900">0501234567</td>
+                                <td class="px-4 py-3 text-sm text-gray-900">mohammed@email.com</td>
+                                <td class="px-4 py-3 text-sm text-gray-900">2024/11/15</td>
+                                <td class="px-4 py-3 text-sm text-gray-900">2,450 ريال</td>
+                                <td class="px-4 py-3 text-sm text-red-600 font-semibold">750 ريال</td>
+                                <td class="px-4 py-3 text-sm text-gray-900">245 نقطة</td>
+                                <td class="px-4 py-3">
+                                    <div class="flex space-x-2 space-x-reverse">
+                                        <button onclick="viewCustomer(1)" class="text-blue-600 hover:text-blue-800 text-sm">عرض</button>
+                                        <button onclick="editCustomer(1)" class="text-green-600 hover:text-green-800 text-sm">تعديل</button>
+                                        <button onclick="sendMessage(1)" class="text-purple-600 hover:text-purple-800 text-sm">رسالة</button>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr class="hover:bg-gray-50">
+                                <td class="px-4 py-3">
+                                    <div class="flex items-center">
+                                        <div class="w-8 h-8 bg-pink-500 rounded-full flex items-center justify-center text-white text-sm font-bold ml-3">
+                                            ف
+                                        </div>
+                                        <div>
+                                            <p class="text-sm font-semibold text-gray-900">فاطمة علي المحمد</p>
+                                            <p class="text-xs text-gray-500">عميل عادي</p>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="px-4 py-3 text-sm text-gray-900">0507654321</td>
+                                <td class="px-4 py-3 text-sm text-gray-900">fatima@email.com</td>
+                                <td class="px-4 py-3 text-sm text-gray-900">2024/11/12</td>
+                                <td class="px-4 py-3 text-sm text-gray-900">1,890 ريال</td>
+                                <td class="px-4 py-3 text-sm text-red-600 font-semibold">890 ريال</td>
+                                <td class="px-4 py-3 text-sm text-gray-900">189 نقطة</td>
+                                <td class="px-4 py-3">
+                                    <div class="flex space-x-2 space-x-reverse">
+                                        <button onclick="viewCustomer(2)" class="text-blue-600 hover:text-blue-800 text-sm">عرض</button>
+                                        <button onclick="editCustomer(2)" class="text-green-600 hover:text-green-800 text-sm">تعديل</button>
+                                        <button onclick="sendMessage(2)" class="text-purple-600 hover:text-purple-800 text-sm">رسالة</button>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <div id="suppliers" class="section hidden">
+            <div class="bg-white rounded-xl shadow-lg p-6">
+                <div class="flex flex-col md:flex-row md:items-center md:justify-between mb-6">
+                    <h2 class="text-2xl font-bold text-gray-800 mb-4 md:mb-0">إدارة الموردين</h2>
+                    <button onclick="openAddSupplierModal()" class="bg-blue-500 hover:bg-blue-600 text-white px-6 py-2 rounded-lg font-semibold transition-colors">
+                        إضافة مورد جديد
+                    </button>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <div class="border border-gray-200 rounded-xl p-6 hover:shadow-lg transition-shadow">
+                        <div class="flex items-center justify-between mb-4">
+                            <div class="w-12 h-12 bg-blue-500 rounded-full flex items-center justify-center text-white font-bold text-lg">
+                                ش
+                            </div>
+                            <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">نشط</span>
+                        </div>
+                        <h3 class="text-lg font-bold text-gray-800 mb-2">شركة الدواء الأولى</h3>
+                        <div class="space-y-2 text-sm text-gray-600 mb-4">
+                            <p><span class="font-semibold">الهاتف:</span> 011-4567890</p>
+                            <p><span class="font-semibold">البريد:</span> info@pharma1.com</p>
+                            <p><span class="font-semibold">المنتجات:</span> 45 منتج</p>
+                            <p><span class="font-semibold">آخر طلب:</span> 2024/11/10</p>
+                        </div>
+                        <div class="flex space-x-2 space-x-reverse">
+                            <button onclick="viewSupplier(1)" class="flex-1 bg-blue-500 hover:bg-blue-600 text-white py-2 rounded-lg text-sm font-semibold transition-colors">
+                                عرض التفاصيل
+                            </button>
+                            <button onclick="editSupplier(1)" class="flex-1 bg-gray-500 hover:bg-gray-600 text-white py-2 rounded-lg text-sm font-semibold transition-colors">
+                                تعديل
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="border border-gray-200 rounded-xl p-6 hover:shadow-lg transition-shadow">
+                        <div class="flex items-center justify-between mb-4">
+                            <div class="w-12 h-12 bg-green-500 rounded-full flex items-center justify-center text-white font-bold text-lg">
+                                م
+                            </div>
+                            <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">نشط</span>
+                        </div>
+                        <h3 class="text-lg font-bold text-gray-800 mb-2">مؤسسة الصحة للأدوية</h3>
+                        <div class="space-y-2 text-sm text-gray-600 mb-4">
+                            <p><span class="font-semibold">الهاتف:</span> 011-7654321</p>
+                            <p><span class="font-semibold">البريد:</span> contact@health.com</p>
+                            <p><span class="font-semibold">المنتجات:</span> 32 منتج</p>
+                            <p><span class="font-semibold">آخر طلب:</span> 2024/11/08</p>
+                        </div>
+                        <div class="flex space-x-2 space-x-reverse">
+                            <button onclick="viewSupplier(2)" class="flex-1 bg-blue-500 hover:bg-blue-600 text-white py-2 rounded-lg text-sm font-semibold transition-colors">
+                                عرض التفاصيل
+                            </button>
+                            <button onclick="editSupplier(2)" class="flex-1 bg-gray-500 hover:bg-gray-600 text-white py-2 rounded-lg text-sm font-semibold transition-colors">
+                                تعديل
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="border border-gray-200 rounded-xl p-6 hover:shadow-lg transition-shadow">
+                        <div class="flex items-center justify-between mb-4">
+                            <div class="w-12 h-12 bg-purple-500 rounded-full flex items-center justify-center text-white font-bold text-lg">
+                                ش
+                            </div>
+                            <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-yellow-100 text-yellow-800">معلق</span>
+                        </div>
+                        <h3 class="text-lg font-bold text-gray-800 mb-2">شركة الشفاء الطبية</h3>
+                        <div class="space-y-2 text-sm text-gray-600 mb-4">
+                            <p><span class="font-semibold">الهاتف:</span> 011-9876543</p>
+                            <p><span class="font-semibold">البريد:</span> orders@shifa.com</p>
+                            <p><span class="font-semibold">المنتجات:</span> 28 منتج</p>
+                            <p><span class="font-semibold">آخر طلب:</span> 2024/10/25</p>
+                        </div>
+                        <div class="flex space-x-2 space-x-reverse">
+                            <button onclick="viewSupplier(3)" class="flex-1 bg-blue-500 hover:bg-blue-600 text-white py-2 rounded-lg text-sm font-semibold transition-colors">
+                                عرض التفاصيل
+                            </button>
+                            <button onclick="editSupplier(3)" class="flex-1 bg-gray-500 hover:bg-gray-600 text-white py-2 rounded-lg text-sm font-semibold transition-colors">
+                                تعديل
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="reports" class="section hidden">
+            <div class="bg-white rounded-xl shadow-lg p-6">
+                <h2 class="text-2xl font-bold text-gray-800 mb-6">التقارير والتحليلات المتقدمة</h2>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                    <button onclick="generateSalesReport()" class="bg-blue-500 hover:bg-blue-600 text-white p-6 rounded-xl text-center transition-all hover:scale-105">
+                        <svg class="w-12 h-12 mx-auto mb-3" fill="currentColor" viewBox="0 0 20 20">
+                            <path d="M2 11a1 1 0 011-1h2a1 1 0 011 1v5a1 1 0 01-1 1H3a1 1 0 01-1-1v-5zM8 7a1 1 0 011-1h2a1 1 0 011 1v9a1 1 0 01-1 1H9a1 1 0 01-1-1V7zM14 4a1 1 0 011-1h2a1 1 0 011 1v12a1 1 0 01-1 1h-2a1 1 0 01-1-1V4z"/>
+                        </svg>
+                        <h3 class="font-bold text-lg">تقارير المبيعات</h3>
+                        <p class="text-sm opacity-90">تحليل أداء المبيعات والأرباح</p>
+                    </button>
+
+                    <button onclick="generateInventoryReport()" class="bg-green-500 hover:bg-green-600 text-white p-6 rounded-xl text-center transition-all hover:scale-105">
+                        <svg class="w-12 h-12 mx-auto mb-3" fill="currentColor" viewBox="0 0 20 20">
+                            <path d="M5 3a2 2 0 00-2 2v2a2 2 0 002 2h2a2 2 0 002-2V5a2 2 0 00-2-2H5zM5 11a2 2 0 00-2 2v2a2 2 0 002 2h2a2 2 0 002-2v-2a2 2 0 00-2-2H5zM11 5a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V5zM11 13a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"/>
+                        </svg>
+                        <h3 class="font-bold text-lg">تقارير المخزون</h3>
+                        <p class="text-sm opacity-90">حالة المخزون والتنبيهات</p>
+                    </button>
+
+                    <button onclick="generateDebtReport()" class="bg-red-500 hover:bg-red-600 text-white p-6 rounded-xl text-center transition-all hover:scale-105">
+                        <svg class="w-12 h-12 mx-auto mb-3" fill="currentColor" viewBox="0 0 20 20">
+                            <path d="M4 4a2 2 0 00-2 2v4a2 2 0 002 2V6h10a2 2 0 00-2-2H4zm2 6a2 2 0 012-2h8a2 2 0 012 2v4a2 2 0 01-2 2H8a2 2 0 01-2-2v-4zm6 4a2 2 0 100-4 2 2 0 000 4z"/>
+                        </svg>
+                        <h3 class="font-bold text-lg">تقارير الديون</h3>
+                        <p class="text-sm opacity-90">متابعة الديون والمستحقات</p>
+                    </button>
+
+                    <button onclick="generateCustomerReport()" class="bg-orange-500 hover:bg-orange-600 text-white p-6 rounded-xl text-center transition-all hover:scale-105">
+                        <svg class="w-12 h-12 mx-auto mb-3" fill="currentColor" viewBox="0 0 20 20">
+                            <path d="M9 6a3 3 0 11-6 0 3 3 0 016 0zM17 6a3 3 0 11-6 0 3 3 0 016 0zM12.93 17c.046-.327.07-.66.07-1a6.97 6.97 0 00-1.5-4.33A5 5 0 0119 16v1h-6.07zM6 11a5 5 0 015 5v1H1v-1a5 5 0 015-5z"/>
+                        </svg>
+                        <h3 class="font-bold text-lg">تقارير العملاء</h3>
+                        <p class="text-sm opacity-90">تحليل سلوك العملاء</p>
+                    </button>
+                </div>
+
+                <div id="reportDisplay" class="hidden">
+                    <div class="border-t pt-6">
+                        <div class="flex items-center justify-between mb-4">
+                            <h3 id="reportTitle" class="text-xl font-bold text-gray-800"></h3>
+                            <div class="flex space-x-2 space-x-reverse">
+                                <button onclick="exportReport('pdf')" class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg font-semibold transition-colors">
+                                    تصدير PDF
+                                </button>
+                                <button onclick="exportReport('excel')" class="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg font-semibold transition-colors">
+                                    تصدير Excel
+                                </button>
+                            </div>
+                        </div>
+                        <div id="reportContent" class="bg-gray-50 p-6 rounded-lg">
+                            </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="settings" class="section hidden">
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                <div class="bg-white rounded-xl shadow-lg p-6">
+                    <h3 class="text-xl font-bold text-gray-800 mb-6">الإعدادات العامة</h3>
+                    <div class="space-y-4">
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-700 mb-2">اسم الصيدلية</label>
+                            <input type="text" value="صيدلية الشفاء" class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-700 mb-2">العنوان</label>
+                            <textarea rows="3" class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent">شارع الملك فهد، الرياض، المملكة العربية السعودية</textarea>
+                        </div>
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-sm font-semibold text-gray-700 mb-2">رقم الهاتف</label>
+                                <input type="text" value="011-4567890" class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-semibold text-gray-700 mb-2">البريد الإلكتروني</label>
+                                <input type="email" value="info@pharmacy.com" class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-xl shadow-lg p-6">
+                    <h3 class="text-xl font-bold text-gray-800 mb-6">إعدادات النظام</h3>
+                    <div class="space-y-4">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="font-semibold text-gray-800">الوضع الليلي</p>
+                                <p class="text-sm text-gray-600">تفعيل الواجهة الداكنة</p>
+                            </div>
+                            <button onclick="toggleDarkMode()" class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg transition-colors">
+                                تبديل
+                            </button>
+                        </div>
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="font-semibold text-gray-800">تنبيهات انتهاء الصلاحية</p>
+                                <p class="text-sm text-gray-600">تنبيه قبل انتهاء الصلاحية بـ</p>
+                            </div>
+                            <select class="border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                                <option>30 يوم</option>
+                                <option>60 يوم</option>
+                                <option>90 يوم</option>
+                            </select>
+                        </div>
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="font-semibold text-gray-800">تنبيهات المخزون المنخفض</p>
+                                <p class="text-sm text-gray-600">تنبيه عند وصول الكمية إلى</p>
+                            </div>
+                            <input type="number" value="10" min="1" class="w-20 border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                        </div>
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="font-semibold text-gray-800">معدل الضريبة</p>
+                                <p class="text-sm text-gray-600">نسبة ضريبة القيمة المضافة</p>
+                            </div>
+                            <div class="flex items-center">
+                                <input type="number" value="15" min="0" max="100" step="0.1" class="w-20 border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                                <span class="mr-2">%</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-xl shadow-lg p-6">
+                    <h3 class="text-xl font-bold text-gray-800 mb-6">النسخ الاحتياطي والأمان</h3>
+                    <div class="space-y-4">
+                        <button onclick="createBackup()" class="w-full bg-green-500 hover:bg-green-600 text-white py-3 rounded-lg font-semibold transition-colors">
+                            إنشاء نسخة احتياطية
+                        </button>
+                        <button onclick="restoreBackup()" class="w-full bg-blue-500 hover:bg-blue-600 text-white py-3 rounded-lg font-semibold transition-colors">
+                            استعادة نسخة احتياطية
+                        </button>
+                        <button onclick="changePassword()" class="w-full bg-orange-500 hover:bg-orange-600 text-white py-3 rounded-lg font-semibold transition-colors">
+                            تغيير كلمة المرور
+                        </button>
+                        <div class="border-t pt-4">
+                            <p class="text-sm text-gray-600 mb-2">آخر نسخة احتياطية: 2024/11/15 - 10:30 ص</p>
+                            <p class="text-sm text-gray-600">حجم قاعدة البيانات: 45.2 MB</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-xl shadow-lg p-6">
+                    <h3 class="text-xl font-bold text-gray-800 mb-6">استيراد وتصدير البيانات</h3>
+                    <div class="space-y-4">
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-700 mb-2">استيراد منتجات من Excel</label>
+                            <input type="file" accept=".xlsx,.xls,.csv" class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                            <button onclick="importProducts()" class="mt-2 bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg font-semibold transition-colors">
+                                استيراد
+                            </button>
+                        </div>
+                        <div class="border-t pt-4">
+                            <p class="text-sm font-semibold text-gray-700 mb-2">تصدير البيانات</p>
+                            <div class="grid grid-cols-2 gap-2">
+                                <button onclick="exportData('products')" class="bg-green-500 hover:bg-green-600 text-white py-2 rounded-lg text-sm font-semibold transition-colors">
+                                    تصدير المنتجات
+                                </button>
+                                <button onclick="exportData('customers')" class="bg-green-500 hover:bg-green-600 text-white py-2 rounded-lg text-sm font-semibold transition-colors">
+                                    تصدير العملاء
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <div id="barcodeModal" class="modal hidden">
+        <div class="modal-content bg-white rounded-xl shadow-2xl p-8 w-full max-w-md">
+            <div class="text-center">
+                <h3 class="text-xl font-bold text-gray-800 mb-4">مسح الباركود</h3>
+                <div class="barcode-scanner w-full h-48 rounded-lg flex items-center justify-center mb-4">
+                    <div class="text-center">
+                        <svg class="w-16 h-16 mx-auto mb-4 text-blue-500" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M3 4a1 1 0 011-1h3a1 1 0 000 2H5.414l1.293 1.293a1 1 0 01-1.414 1.414L4 6.414V9a1 1 0 01-2 0V4zm9 1a1 1 0 010-2h3a1 1 0 011 1v5a1 1 0 01-2 0V5.414l-1.293 1.293a1 1 0 11-1.414-1.414L12.586 4H12zm-9 7a1 1 0 012 0v2.586l1.293-1.293a1 1 0 111.414 1.414L6.414 16H9a1 1 0 110 2H4a1 1 0 01-1-1v-5zm13 0a1 1 0 01-2 0v2.586l-1.293-1.293a1 1 0 00-1.414 1.414L13.586 16H11a1 1 0 100 2h5a1 1 0 001-1v-5z" clip-rule="evenodd"/>
+                        </svg>
+                        <p class="text-gray-600">وجه الكاميرا نحو الباركود</p>
+                    </div>
+                </div>
+                <input type="text" id="manualBarcode" placeholder="أو أدخل الباركود يدوياً" class="w-full border border-gray-300 rounded-lg px-4 py-2 mb-4 focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                <div class="flex space-x-3 space-x-reverse">
+                    <button onclick="processBarcodeInput()" class="flex-1 bg-blue-500 hover:bg-blue-600 text-white py-2 rounded-lg font-semibold transition-colors">
+                        بحث
+                    </button>
+                    <button onclick="closeBarcodeModal()" class="flex-1 bg-gray-500 hover:bg-gray-600 text-white py-2 rounded-lg font-semibold transition-colors">
+                        إلغاء
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="addProductModal" class="modal hidden">
+        <div class="modal-content bg-white rounded-xl shadow-2xl p-8 w-full max-w-lg">
+            <h3 class="text-xl font-bold text-gray-800 mb-4">إضافة منتج جديد</h3>
+            <form id="addProductForm">
+                <div class="mb-4">
+                    <label for="productName" class="block text-gray-700 text-sm font-semibold mb-2">اسم المنتج:</label>
+                    <input type="text" id="productName" required class="w-full px-4 py-2 border border-gray-300 rounded-lg">
+                </div>
+                <div class="mb-4">
+                    <label for="productBarcode" class="block text-gray-700 text-sm font-semibold mb-2">الباركود:</label>
+                    <input type="text" id="productBarcode" required class="w-full px-4 py-2 border border-gray-300 rounded-lg">
+                </div>
+                <div class="mb-4">
+                    <label for="productPrice" class="block text-gray-700 text-sm font-semibold mb-2">السعر:</label>
+                    <input type="number" id="productPrice" required min="0" step="0.01" class="w-full px-4 py-2 border border-gray-300 rounded-lg">
+                </div>
+                <div class="mb-4">
+                    <label for="productQuantity" class="block text-gray-700 text-sm font-semibold mb-2">الكمية:</label>
+                    <input type="number" id="productQuantity" required min="0" class="w-full px-4 py-2 border border-gray-300 rounded-lg">
+                </div>
+                <div class="flex justify-end space-x-3 space-x-reverse mt-6">
+                    <button type="button" onclick="closeAddProductModal()" class="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded-lg font-semibold">إلغاء</button>
+                    <button type="submit" class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg font-semibold">حفظ المنتج</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script type="module" src="js/firebase-init.js"></script>
+    <script type="module" src="js/auth.js"></script>
+    <script type="module" src="js/utils.js"></script>
+    <script type="module" src="js/dashboard.js"></script>
+    <script type="module" src="js/inventory.js"></script>
+    <script type="module" src="js/pos.js"></script>
+    <script type="module" src="js/debts.js"></script>
+    <script type="module" src="js/customers.js"></script>
+    <script type="module" src="js/suppliers.js"></script>
+    <script type="module" src="js/reports.js"></script>
+    <script type="module" src="js/settings.js"></script>
+
+    <script type="module">
+        import { auth, db } from './js/firebase-init.js';
+        import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-auth.js";
+        import { doc, getDoc } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-firestore.js";
+        import { initializeTheme, showSection } from './js/utils.js';
+
+        document.addEventListener('DOMContentLoaded', async () => {
+            initializeTheme(); // Apply dark mode if saved
+
+            // Initial check for authentication and role
+            onAuthStateChanged(auth, async (user) => {
+                if (!user) {
+                    window.location.href = 'login.html'; // Redirect to login if not authenticated
+                    return;
+                }
+
+                const userNameDisplay = document.getElementById('userNameDisplay');
+                const userRoleDisplay = document.getElementById('userRoleDisplay');
+                const userInitialDisplay = document.getElementById('userInitialDisplay');
+
+                // Fetch user data from Firestore
+                const userDocRef = doc(db, "users", user.uid);
+                const userDocSnap = await getDoc(userDocRef);
+
+                if (userDocSnap.exists()) {
+                    const userData = userDocSnap.data();
+                    const userRole = userData.role;
+                    const userName = userData.name || user.email; // Use name from Firestore or email
+                    const userInitial = userName.charAt(0).toUpperCase();
+
+                    userNameDisplay.textContent = userName;
+                    userRoleDisplay.textContent = userRole === 'doctor' ? 'صيدلي مسؤول' : 'مساعد صيدلي';
+                    userInitialDisplay.textContent = userInitial;
+
+                    // Hide/show navigation buttons based on role
+                    const inventoryBtn = document.querySelector('button[onclick*="showSection(\'inventory\')"]');
+                    const suppliersBtn = document.querySelector('button[onclick*="showSection(\'suppliers\')"]');
+                    const settingsBtn = document.querySelector('button[onclick*="showSection(\'settings\')"]');
+
+                    if (userRole === 'assistant') {
+                        if (inventoryBtn) inventoryBtn.classList.add('hidden');
+                        if (suppliersBtn) suppliersBtn.classList.add('hidden');
+                        if (settingsBtn) settingsBtn.classList.add('hidden');
+                        // Redirect assistant to POS if their last section was restricted
+                        const lastSection = localStorage.getItem('lastSection');
+                        if (lastSection === 'inventory' || lastSection === 'suppliers' || lastSection === 'settings') {
+                            showSection('pos'); // Redirect to POS
+                        } else {
+                            showSection(lastSection || 'dashboard'); // Show last section or dashboard
+                        }
+                    } else {
+                        // Doctor has access to all, show default or last section
+                        const lastSection = localStorage.getItem('lastSection');
+                        showSection(lastSection || 'dashboard');
+                    }
+                } else {
+                    // User exists in Auth but not in Firestore, implies incomplete setup or error
+                    await auth.signOut();
+                    window.location.href = 'login.html';
+                }
+            });
+        });
+    </script>
+</body>
+</html>
